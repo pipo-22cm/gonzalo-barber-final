@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model categorias {
+  id_categoria Int    @id @default(autoincrement())
+  nombre       String @unique(map: "nombre") @db.VarChar(100)
+}
+
+model detalle_ventas {
+  id_detalle_venta Int     @id @default(autoincrement())
+  venta_id         Int
+  producto_id      Int
+  cantidad         Int
+  precio_unitario  Decimal @db.Decimal(10, 2)
+
+  @@index([producto_id], map: "producto_id")
+  @@index([venta_id], map: "venta_id")
+}
+
+model galeria {
+  id_imagen   Int      @id @default(autoincrement())
+  imagen_url  String   @db.VarChar(255)
+  descripcion String   @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model productos {
+  id_producto  Int       @id @default(autoincrement())
+  categoria_id Int
+  nombre       String    @db.VarChar(100)
+  descripcion  String?   @db.VarChar(255)
+  precio       Decimal   @db.Decimal(10, 2)
+  stock        Int
+  imagen_url   String?   @db.VarChar(255)
+  created_at   DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([categoria_id], map: "categoria_id")
+}
+
+model servicios {
+  id_servicio Int       @id @default(autoincrement())
+  nombre      String    @db.VarChar(100)
+  descripcion String?   @db.VarChar(255)
+  precio      Decimal   @db.Decimal(10, 2)
+  duracion    Int
+  estado      Boolean   @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model turnos {
+  id_turno    Int           @id @default(autoincrement())
+  usuario_id  Int
+  servicio_id Int
+  fecha_hora  DateTime      @db.DateTime(0)
+  estado      turnos_estado @default(pendiente)
+  created_at  DateTime?     @default(now()) @db.Timestamp(0)
+
+  @@index([servicio_id], map: "servicio_id")
+  @@index([usuario_id], map: "usuario_id")
+}
+
+model usuarios {
+  id_usuario Int          @id @default(autoincrement())
+  nombre     String       @db.VarChar(100)
+  apellido   String       @db.VarChar(100)
+  email      String       @unique(map: "email") @db.VarChar(100)
+  password   String       @db.VarChar(255)
+  telefono   String?      @db.VarChar(20)
+  rol        usuarios_rol @default(cliente)
+  puntos     Int          @default(0)
+  created_at DateTime?    @default(now()) @db.Timestamp(0)
+}
+
+model ventas {
+  id_venta   Int               @id @default(autoincrement())
+  usuario_id Int?
+  total      Decimal           @db.Decimal(10, 2)
+  tipo_venta ventas_tipo_venta
+  estado     ventas_estado     @default(pendiente)
+  created_at DateTime          @default(now()) @db.Timestamp(0)
+
+  @@index([usuario_id], map: "usuario_id")
+}
+
+enum ventas_tipo_venta {
+  web
+  mostrador
+}
+
+enum turnos_estado {
+  pendiente
+  completado
+  cancelado
+}
+
+enum ventas_estado {
+  pendiente
+  completado
+  cancelado
+}
+
+enum usuarios_rol {
+  cliente
+  admin
+}
