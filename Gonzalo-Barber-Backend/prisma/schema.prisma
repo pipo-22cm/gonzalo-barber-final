@@ -7,16 +7,19 @@ datasource db {
 }
 
 model categorias {
-  id_categoria Int    @id @default(autoincrement())
-  nombre       String @unique(map: "nombre") @db.VarChar(100)
+  id_categoria Int         @id @default(autoincrement())
+  nombre       String      @unique(map: "nombre") @db.VarChar(100)
+  productos    productos[]
 }
 
 model detalle_ventas {
-  id_detalle_venta Int     @id @default(autoincrement())
+  id_detalle_venta Int       @id @default(autoincrement())
   venta_id         Int
   producto_id      Int
   cantidad         Int
-  precio_unitario  Decimal @db.Decimal(10, 2)
+  precio_unitario  Decimal   @db.Decimal(10, 2)
+  productos        productos @relation(fields: [producto_id], references: [id_producto], onUpdate: NoAction, map: "fk_detalle_ventas_producto")
+  ventas           ventas    @relation(fields: [venta_id], references: [id_venta], onDelete: Cascade, onUpdate: NoAction, map: "fk_detalle_ventas_venta")
 
   @@index([producto_id], map: "producto_id")
   @@index([venta_id], map: "venta_id")
@@ -25,31 +28,34 @@ model detalle_ventas {
 model galeria {
   id_imagen   Int      @id @default(autoincrement())
   imagen_url  String   @db.VarChar(255)
-  descripcion String   @db.VarChar(255)
+  descripcion String?  @db.VarChar(255)
   created_at  DateTime @default(now()) @db.Timestamp(0)
 }
 
 model productos {
-  id_producto  Int       @id @default(autoincrement())
-  categoria_id Int
-  nombre       String    @db.VarChar(100)
-  descripcion  String?   @db.VarChar(255)
-  precio       Decimal   @db.Decimal(10, 2)
-  stock        Int
-  imagen_url   String?   @db.VarChar(255)
-  created_at   DateTime? @default(now()) @db.Timestamp(0)
+  id_producto    Int              @id @default(autoincrement())
+  categoria_id   Int
+  nombre         String           @db.VarChar(100)
+  descripcion    String?          @db.VarChar(255)
+  precio         Decimal          @db.Decimal(10, 2)
+  stock          Int
+  imagen_url     String?          @db.VarChar(255)
+  created_at     DateTime         @default(now()) @db.Timestamp(0)
+  detalle_ventas detalle_ventas[]
+  categorias     categorias       @relation(fields: [categoria_id], references: [id_categoria], onUpdate: NoAction, map: "fk_productos_categoria")
 
   @@index([categoria_id], map: "categoria_id")
 }
 
 model servicios {
-  id_servicio Int       @id @default(autoincrement())
-  nombre      String    @db.VarChar(100)
-  descripcion String?   @db.VarChar(255)
-  precio      Decimal   @db.Decimal(10, 2)
+  id_servicio Int      @id @default(autoincrement())
+  nombre      String   @db.VarChar(100)
+  descripcion String?  @db.VarChar(255)
+  precio      Decimal  @db.Decimal(10, 2)
   duracion    Int
-  estado      Boolean   @default(true)
-  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  estado      Boolean  @default(true)
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  turnos      turnos[]
 }
 
 model turnos {
@@ -58,7 +64,9 @@ model turnos {
   servicio_id Int
   fecha_hora  DateTime      @db.DateTime(0)
   estado      turnos_estado @default(pendiente)
-  created_at  DateTime?     @default(now()) @db.Timestamp(0)
+  created_at  DateTime      @default(now()) @db.Timestamp(0)
+  servicios   servicios     @relation(fields: [servicio_id], references: [id_servicio], onUpdate: NoAction, map: "fk_turnos_servicio")
+  usuarios    usuarios      @relation(fields: [usuario_id], references: [id_usuario], onUpdate: NoAction, map: "fk_turnos_usuario")
 
   @@index([servicio_id], map: "servicio_id")
   @@index([usuario_id], map: "usuario_id")
@@ -73,16 +81,20 @@ model usuarios {
   telefono   String?      @db.VarChar(20)
   rol        usuarios_rol @default(cliente)
   puntos     Int          @default(0)
-  created_at DateTime?    @default(now()) @db.Timestamp(0)
+  created_at DateTime     @default(now()) @db.Timestamp(0)
+  turnos     turnos[]
+  ventas     ventas[]
 }
 
 model ventas {
-  id_venta   Int               @id @default(autoincrement())
-  usuario_id Int?
-  total      Decimal           @db.Decimal(10, 2)
-  tipo_venta ventas_tipo_venta
-  estado     ventas_estado     @default(pendiente)
-  created_at DateTime          @default(now()) @db.Timestamp(0)
+  id_venta       Int               @id @default(autoincrement())
+  usuario_id     Int?
+  total          Decimal           @db.Decimal(10, 2)
+  tipo_venta     ventas_tipo_venta
+  estado         ventas_estado     @default(pendiente)
+  created_at     DateTime          @default(now()) @db.Timestamp(0)
+  detalle_ventas detalle_ventas[]
+  usuarios       usuarios?         @relation(fields: [usuario_id], references: [id_usuario], onDelete: Restrict, onUpdate: NoAction, map: "fk_ventas_usuario")
 
   @@index([usuario_id], map: "usuario_id")
 }
@@ -90,12 +102,6 @@ model ventas {
 enum ventas_tipo_venta {
   web
   mostrador
-}
-
-enum turnos_estado {
-  pendiente
-  completado
-  cancelado
 }
 
 enum ventas_estado {
@@ -107,4 +113,11 @@ enum ventas_estado {
 enum usuarios_rol {
   cliente
   admin
+}
+
+enum turnos_estado {
+  pendiente
+  confirmado
+  completado
+  cancelado
 }
