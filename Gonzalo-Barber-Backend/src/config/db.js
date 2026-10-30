@@ -1,18 +1,14 @@
-import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
+import { PrismaClient } from '@prisma/client';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
-dotenv.config();
+const adapter = new PrismaMariaDb({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306
+})
 
+const prisma = new PrismaClient({ adapter });
 
-export const sequelize = new Sequelize(
-    process.env.DB_NAME || 'gonzalo_barber',
-    process.env.DB_USER || 'root',
-    process.env.DB_PASSWORD || 'pipo_0598',
-    {
-        host: process.env.DB_HOST || 'localhost',
-        port: process.env.DB_PORT || 3306,
-        dialect: 'mysql',
-        logging: false 
-    }
-)
-
+export default prisma;
