@@ -8,7 +8,7 @@ export class AuthController {
     static async createUsuario (req,res){
         
         try {
-            const { nombre, apellido, email, password, telefono, rol } = req.body;
+            const { nombre, apellido, email, password, telefono } = req.body;
             const usuarioExistente = await UsuarioModel.buscarPorEmail(email);
                 if(usuarioExistente){
                 return res.status(400).json({mensaje: 'El correo electronico ya está registrado.'})
@@ -20,9 +20,9 @@ export class AuthController {
                 apellido,
                 email,
                 password: passwordHash,
-                telefono,
-                rol
+                telefono
             })
+            
             return res.status(201).json({
                 mensaje: 'Usuario registrado con éxito',
                 id: idUsuario
@@ -36,7 +36,7 @@ export class AuthController {
     
         try{
             const {email, password} = req.body;
-            const usuario = await UsuarioModel.loginUsuario(email);
+            const usuario = await UsuarioModel.buscarPorEmail(email);
             if(!usuario){
                 return res.status(401).json({mensaje: 'Usuario no encontrado'})
             }
