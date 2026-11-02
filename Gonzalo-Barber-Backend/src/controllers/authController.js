@@ -1,7 +1,7 @@
 import { UsuarioModel } from "../models/usuarioModel.js";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
-import { SECRET_JWT_KEY } from '../config/config.js';
+import { SECRET_JWT_KEY , NODE_ENV } from '../config/config.js';
 
 export class AuthController {
 
@@ -41,11 +41,11 @@ export class AuthController {
             const {email, password} = req.body;
             const usuario = await UsuarioModel.buscarPorEmail(email);
             if(!usuario){
-                return res.status(401).json({mensaje: 'Usuario no encontrado'})
+                return res.status(401).json({mensaje: 'Email o contraseña incorrecta'})
             }
             const esPasswordvalida = await bcrypt.compare(password,usuario.password);
             if(!esPasswordvalida){
-                return res.status(401).json({mensaje: 'Contraseña incorrecta'})
+                return res.status(401).json({mensaje: 'Email o contraseña incorrecta'})
             }
             const token = jwt.sign(
                 {id: usuario.id_usuario, email: usuario.email, rol: usuario.rol},
@@ -56,7 +56,7 @@ export class AuthController {
             return res.status(200)
             .cookie('token', token,{
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'produccion',
+                secure: NODE_ENV === 'production',
                 sameSite: 'strict',
                 maxAge: 3600000
             })

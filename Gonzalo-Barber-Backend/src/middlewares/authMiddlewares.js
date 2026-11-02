@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
-const SECRET_JWT_KEY = process.env.SECRET_JWT_KEY;
+import { SECRET_JWT_KEY } from '../config/config.js';
+
 
 
 
@@ -15,7 +16,7 @@ export const authMiddlewares = async (req, res, next) => {
         }
     const verificacion = jwt.verify (
         token, 
-        process.env.SECRET_JWT_KEY || 'cl4v3_SECr3t4_p0i5p9o8_uN1ca'
+        SECRET_JWT_KEY
     );
     
     req.user = verificacion

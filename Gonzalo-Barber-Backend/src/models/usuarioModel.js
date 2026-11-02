@@ -23,5 +23,5 @@ export class UsuarioModel {
         });
         return usuariosCreado.id_usuario;
     }
-
+    
 }
