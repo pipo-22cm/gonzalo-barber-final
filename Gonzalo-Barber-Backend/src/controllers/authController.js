@@ -1,7 +1,7 @@
 import { UsuarioModel } from "../models/usuarioModel.js";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
-const SECRET_JWT_KEY = process.env.SECRET_JWT_KEY;
+import { SECRET_JWT_KEY } from '../config/config.js';
 
 export class AuthController {
 
@@ -22,13 +22,16 @@ export class AuthController {
                 password: passwordHash,
                 telefono
             })
-            
+
             return res.status(201).json({
                 mensaje: 'Usuario registrado con éxito',
                 id: idUsuario
             })
         }catch(error){
-            return res.status(500).json({ error: error.message })
+            console.error('Error al registrar usuario:', error);
+            return res.status(500).json({ 
+                mensaje: 'Error al registrar usuario, por favor intente mas tarde.'
+             })
         }
     }
 
@@ -46,7 +49,7 @@ export class AuthController {
             }
             const token = jwt.sign(
                 {id: usuario.id_usuario, email: usuario.email, rol: usuario.rol},
-                process.env.SECRET_JWT_KEY || 'cl4v3_SECr3t4_p0i5p9o8_uN1ca',
+                SECRET_JWT_KEY,
                 {expiresIn: '1h'}
             );
 
@@ -69,7 +72,10 @@ export class AuthController {
                 }
             });
         }catch(error){
-            return res.status(500).json({ error: error.message });
+            console.error('Error al iniciar sesión:', error);
+            return res.status(500).json({ 
+                mensaje: 'Error al iniciar sesión, por favor intente mas tarde.'
+            });
         }
     }
 
@@ -83,8 +89,8 @@ export class AuthController {
             })
 
         }catch(error){
+            console.error('Error al cerrar sesión:', error);
             return res.status(500).json({
-                ok: false,
                 mensaje: 'Hubo un error al cerrar sesión'
             });
         }
