@@ -1,34 +1,49 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/db.js';
+import prisma from '../config/db.js'
+
+export class ServicioModel {
+    
+    static async listarTodosServicio(){
+        return await prisma.servicios.findMany();
+    }
+
+    static async listarActivosServicio(){
+        return await prisma.servicios.findMany({ 
+            where : {estado: true} 
+        });
+    }
+
+    static async buscarPorIdServicio(id){
+        return await prisma.servicios.findUnique ({ where: {id_servicio: id} })
+    }
+
+    static async crearServicio(nuevoServicio){
+        return await prisma.servicios.create ({
+            data: {
+                nombre: nuevoServicio.nombre,
+                descripcion: nuevoServicio.descripcion,
+                precio: nuevoServicio.precio,
+                duracion: nuevoServicio.duracion,
+                estado: nuevoServicio.estado
+            }
+        })
+    }
+
+    static async actualizarServicio(id, datos){
+        return await prisma.servicios.update({
+            where: {id_servicio: id},
+            data: datos
+        })
+    }
 
 
-export const Servicio = sequelize.define('Servicio',{
-    id_servicio: {
-        type: DataTypes.INTERGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    nombre: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    descripcion: {
-        type: DataTypes.STRING,
-    },
-    precio: {
-        type: DataTypes.DECIMAL,
-        allowNull: false
-    },
-    duracion:{
-        type: DataTypes.INTERGER,
-        allowNull: false
+    static async darDeBajaServicio(id){
+        return await prisma.servicios.update({
+            where: {id_servicio: id},
+            data: { estado: false }
+        })
     }
-    estado: {
-        type: DataTypes.BOLEAN,
-    }
-}), {
-    tableName: 'servicios',
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: false
 }
+
+
+
+
