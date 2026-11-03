@@ -117,7 +117,37 @@ export class ServicioController {
         }
     }
 
+    static async borrarServicio (req, res){
+        try{
+            const id = Number(req.params.id)
+            if (!Number.isInteger(id)){
+                return res.status(400).json({ mensaje: 'El id no es un número válido' });
+            }
+            
+            const servicio = await ServicioModel.buscarPorIdServicio(id);
+            if (!servicio){
+                return res.status(404).json({ 
+                mensaje: 'El servicio no existe'
+                })
+            }
 
+             if (!servicio.estado) {
+            return res.status(409).json({ mensaje: 'El servicio ya está dado de baja' });
+            }
 
+             const bajaServicio = await ServicioModel.darDeBajaServicio(id)
+            
+                return res.status(200).json({ 
+                mensaje: 'El servicio ya esta dado de baja',
+                servicio: bajaServicio
+                });
+
+        }catch(error){
+            console.error('Error al dar de baja el servicio:', error);
+            return res.status(500).json({ 
+                mensaje: 'Error al dar de baja el servicio, por favor intente mas tarde.'
+             })
+        }
+    }
 
 }
