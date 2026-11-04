@@ -35,7 +35,6 @@ export class ServicioModel {
         })
     }
 
-
     static async darDeBajaServicio(id){
         return await prisma.servicios.update({
             where: {id_servicio: id},
