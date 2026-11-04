@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import { authRoutes }  from './routes/authRoutes.js'
 import { servicioRoutes }  from './routes/servicioRoutes.js'
+import { capturadorDeError } from './middlewares/errorMiddlewares.js'
 
 
 const app = express()
@@ -16,7 +17,7 @@ app.use(cookieParser())
 
 app.use('/gonzaloBarber/auth', authRoutes)
 app.use('/gonzaloBarber/servicios', servicioRoutes)
-
+app.use(capturadorDeError)
 
 
 export default app
