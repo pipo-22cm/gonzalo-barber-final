@@ -1,6 +1,5 @@
 import { ServicioModel } from '../models/servicioModel.js';
 
-
 export class ServicioController {
 
     static async listarActivos (req,res){
@@ -33,7 +32,7 @@ export class ServicioController {
         }
     }
     
-    static async obtenerPorId(req, res) {
+    static async obtenerPorId (req, res) {
         try {
             const id = Number(req.params.id);
 
@@ -117,7 +116,7 @@ export class ServicioController {
         }
     }
 
-    static async borrarServicio (req, res){
+    static async bajaServicio (req, res){
         try{
             const id = Number(req.params.id)
             if (!Number.isInteger(id)){
@@ -132,7 +131,7 @@ export class ServicioController {
             }
 
              if (!servicio.estado) {
-            return res.status(409).json({ mensaje: 'El servicio ya está dado de baja' });
+            return res.status(409).json({ mensaje: 'El servicio dado de baja' });
             }
 
              const bajaServicio = await ServicioModel.darDeBajaServicio(id)
@@ -149,5 +148,4 @@ export class ServicioController {
              })
         }
     }
-
 }
