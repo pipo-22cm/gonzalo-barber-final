@@ -99,6 +99,15 @@ model ventas {
   @@index([usuario_id], map: "usuario_id")
 }
 
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model bloqueos {
+  id_bloqueo        Int      @id @default(autoincrement())
+  fecha_hora_inicio DateTime @db.DateTime(0)
+  fecha_hora_fin    DateTime @db.DateTime(0)
+  motivo            String?  @db.VarChar(255)
+  created_at        DateTime @default(now()) @db.Timestamp(0)
+}
+
 enum ventas_tipo_venta {
   web
   mostrador
