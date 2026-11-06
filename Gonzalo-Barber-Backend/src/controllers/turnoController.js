@@ -28,7 +28,7 @@ export class TurnoController {
                 return res.status(400).json({ mensaje: "La fecha u hora no es valida." });
             }
             //¿Es una fecha futura?
-            if(inicio <= new date()){
+            if(inicio <= new Date()){
                 return res.status(400).json({ mensaje: 'No se puede reservar un turno en una fecha u hora pasada' });
             }
             //¿Es martes a sábado?
@@ -70,7 +70,7 @@ export class TurnoController {
             }
             //Guardar el turno (el estado queda 'pendiente' por defecto)
             const turno = await TurnoModel.crearTurno({
-                usuario_id: usuarioId,
+                usuario_id: idUsuario,
                 servicio_id,
                 fecha_hora: inicio
             });
