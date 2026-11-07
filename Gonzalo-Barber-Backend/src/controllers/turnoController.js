@@ -101,9 +101,40 @@ export class TurnoController {
 
     static async cancelarMiTurno (req, res){
         try{
+            const id = Number(req.params.id)
+            if (!Number.isInteger(id)){
+                return res.status(400).json({ mensaje: 'El id no es un número válido' });
+            }
+
+            const turno = await TurnoModel.buscarPorIdTurno(id)
+            if(!turno){
+                return res.status(404).json({mensaje: 'El turno no existe'})
+            }
+
+            const idUsuario = req.user.id
+            if(turno.usuario_id !== idUsuario){
+                return res.status(404).json({mensaje: 'El turno no existe'})
+            }
+
+            if(turno.estado !== "pendiente" && turno.estado !== "confirmado"  ){
+                return res.status(409).json({ mensaje: "El turno no se encuentra en un estado activo para cancelar" });
+            }
+
+            const faltan = turno.fecha_hora.getTime() - Date.now();
+            const limite = HORAS_LIMITE_CANCELAR * 60 * 60 * 1000;
+        
+            if (faltan < limite){
+                return res.status(400).json({ mensaje: `Solo se puede cancelar hasta ${HORAS_LIMITE_CANCELAR} horas antes del turno` });
+            }
+
+            const turnoCancelado = await TurnoModel.cambiarEstadoTurno(id,'cancelado')
+                return res.status(200).json({mensaje: 'Turno cancelado con éxito', turno: turnoCancelado})
 
         }catch(error){
-            
+            console.error('Error al cancelar el turno:', error);
+            return res.status(500).json({
+                mensaje: 'Error al cancelar el turno, por favor intente más tarde.'
+            });
         }
     }
 
