@@ -9,3 +9,7 @@ export const crearTurnoSchema = z.object({
 
     hora: z.string().regex(/^\d{2}:\d{2}$/,'La hora debe tener el formato HH:MM')
 })
+
+export const cambiarEstadoSchema = z.object({
+    estado : z.enum(['confirmado', 'cancelado'],'El estado debe ser "confirmado" o "cancelado"')
+})

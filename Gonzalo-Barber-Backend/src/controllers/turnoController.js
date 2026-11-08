@@ -167,9 +167,34 @@ export class TurnoController {
 
     static async cambiarEstado (req, res){
         try{
+            const id = Number(req.params.id)
+            if(!Number.isInteger(id)){
+                return res.status(400).json({ mensaje: 'El id no es un número válido' });
+            }
+
+            const turno = await TurnoModel.buscarPorIdTurno(id)
+            if(!turno){
+                return res.status(404).json({mensaje: 'El turno no existe'})
+            }
+
+            if(turno.estado !== "pendiente" && turno.estado !== "confirmado" ){
+                return res.status(409).json({mensaje: 'El turno no esta activo.' })
+            }
+
+            const {estado} = req.body
+            if(turno.estado === estado){
+                return res.status(409).json({mensaje: `El turno ya está ${estado}` })
+            }
+
+            const turnoActualizado = await TurnoModel.cambiarEstadoTurno(id, estado);
+            return res.status(200).json({ mensaje: 'Estado del turno actualizado', turno: turnoActualizado });
+
 
         }catch(error){
-            
+            console.error('Error al cambiar el estado del turno:', error);
+            return res.status(500).json({
+                mensaje: 'Error al cambiar el estado del turno, por favor intente más tarde.'
+            });
         }
     }
 
