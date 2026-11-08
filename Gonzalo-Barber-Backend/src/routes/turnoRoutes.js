@@ -14,7 +14,7 @@ router.get('/mis-turnos',authMiddlewares, TurnoController.misTurnos);
 router.post('/',authMiddlewares,validarSchemas(crearTurnoSchema), TurnoController.crearTurno);
 router.patch('/:id/cancelar', authMiddlewares, TurnoController.cancelarMiTurno);
 router.patch('/:id/estado', authMiddlewares, esAdmin, validarSchemas(cambiarEstadoSchema), TurnoController.cambiarEstado);
-
+router.patch('/:id/completar', authMiddlewares, esAdmin, TurnoController.completarTurno);
 
 
 

@@ -200,9 +200,29 @@ export class TurnoController {
 
     static async completarTurno (req, res){
         try{
+            const id = Number(req.params.id)
+            if(!Number.isInteger(id)){
+                return res.status(400).json({ mensaje: 'El id no es un número válido' });
+            }
+            const turno = await TurnoModel.buscarPorIdTurno(id)
+            if(!turno){
+                return res.status(404).json({mensaje: 'El turno no existe'})
+            }
+            if (turno.fecha_hora > new Date()) {
+                return res.status(400).json({ mensaje: 'No se puede completar un turno que todavía no empezó' });
+            }
+            if(turno.estado !== "pendiente" && turno.estado !== "confirmado" ){
+                return res.status(409).json({mensaje: 'El turno no esta activo.' })
+            }
+
+            const sumaPuntos = await TurnoModel.completarTurno(id,turno.usuario_id,PUNTOS_POR_TURNO);
+             return res.status(200).json({mensaje:`Turno completado, se sumaron ${PUNTOS_POR_TURNO} puntos al cliente`});
 
         }catch(error){
-            
+            console.error('Error al completar y sumar puntos :', error);
+            return res.status(500).json({ 
+                mensaje: 'Error al completar y sumar puntos, por favor intente mas tarde.'
+             })
         }
     }
 
