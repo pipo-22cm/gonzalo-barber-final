@@ -13,3 +13,5 @@ export const crearTurnoSchema = z.object({
 export const cambiarEstadoSchema = z.object({
     estado : z.enum(['confirmado', 'cancelado'],'El estado debe ser "confirmado" o "cancelado"')
 })
+
+export const actualizarTurnoSchema = crearTurnoSchema.partial({servicio_id: true})

@@ -176,9 +176,43 @@ export class TurnoController {
 
     static async actualizarTurno (req, res){
         try{
+            const id = Number(req.params.id)
+            const { fecha, hora } = req.body
+                if(!Number.isInteger(id)){
+                    return res.status(400).json({ mensaje: 'El id no es un número válido' });
+                }
+
+            const turno = await TurnoModel.buscarPorIdTurno(id)
+                if(!turno){
+                    return res.status(404).json({mensaje: 'El turno no existe'})
+                }
+
+                if(turno.estado !== "pendiente" && turno.estado !== "confirmado"  ){
+                    return res.status(409).json({ mensaje: "El turno no se encuentra en un estado activo para cancelar" });
+                }
+
+            const servicio = req.body.servicio_id 
+                        ? await ServicioModel.buscarPorIdServicio(req.body.servicio_id)
+                        : turno.servicios;
+
+                if (req.body.servicio_id && (!servicio || !servicio.estado)) {
+                    return res.status(404).json({ mensaje: 'El servicio no está disponible' });
+                }
+
+            const resultado = await validarHorario(servicio, fecha, hora, id);
+                if (resultado.status) {
+                    return res.status(resultado.status).json({ mensaje: resultado.mensaje });
+                }
+
+            const turnoActualizado = await TurnoModel.actualizarTurno (id, { servicio_id: servicio.id_servicio, fecha_hora: resultado.inicio })
+            return res.status(200).json({ mensaje: 'Turno actualizado con éxito', turno: turnoActualizado });
+    
 
         }catch(error){
-            
+                console.error('Error al actualizar el turno:', error);
+            return res.status(500).json({
+                mensaje: 'Error al actualizar el turno, por favor intente más tarde.'
+            });
         }
     }
 
