@@ -2,8 +2,66 @@ import { TurnoModel } from '../models/turnoModel.js';
 import { ServicioModel } from '../models/servicioModel.js';
 import {DIAS_ATENCION, FRANJAS_HORARIAS, DURACION_BLOQUE, HORAS_LIMITE_CANCELAR, PUNTOS_POR_TURNO, ZONA_HORARIA} from '../config/negocio.js';
 
+async function validarHorario(servicio, fecha, hora, idTurnoExcluido) {
+            // Armar la fecha del turno, en hora de Argentina
+            const inicio = new Date(`${fecha}T${hora}:00${ZONA_HORARIA}`);
+            if (Number.isNaN(inicio.getTime())) {
+                return { status: 400, mensaje: 'La fecha u hora no es válida' };
+            }
+
+            // ¿Es una fecha futura?
+            if (inicio <= new Date()) {
+                return { status: 400, mensaje: 'No se puede reservar un turno en una fecha u hora pasada' };
+            }
+
+            // ¿Es martes a sábado? (RF-25)
+            const dia = new Date(`${fecha}T00:00:00Z`).getUTCDay();
+            if (!DIAS_ATENCION.includes(dia)) {
+                return { status: 400, mensaje: 'Solo se pueden reservar turnos de martes a sábado' };
+            }
+
+            // ¿Empieza en un bloque de 30 minutos?
+            const [h, m] = hora.split(':').map(Number);
+            const minutosInicio = h * 60 + m;
+            if (minutosInicio % DURACION_BLOQUE !== 0) {
+                return { status: 400, mensaje: 'Los turnos empiezan cada 30 minutos' };
+            }
+
+            // ¿El servicio entra entero en una franja horaria? (RF-25)
+            const bloques = Math.ceil(servicio.duracion / DURACION_BLOQUE);
+            const minutosFin = minutosInicio + bloques * DURACION_BLOQUE;
+            const entraEnFranja = FRANJAS_HORARIAS.some(franja =>
+                minutosInicio >= franja.inicio && minutosFin <= franja.fin
+            );
+            if (!entraEnFranja) {
+                return { status: 400, mensaje: 'El servicio no entra en el horario de atención' };
+            }
+
+            // ¿Se superpone con otro turno activo?
+            const fin = new Date(inicio.getTime() + bloques * DURACION_BLOQUE * 60 * 1000);
+            const inicioDia = new Date(`${fecha}T00:00:00${ZONA_HORARIA}`);
+            const finDia = new Date(inicioDia.getTime() + 24 * 60 * 60 * 1000);
+            const turnosDelDia = await TurnoModel.listarActivosPorFecha(inicioDia, finDia);
+
+            const haySuperposicion = turnosDelDia.some(t => {
+                if (t.id_turno === idTurnoExcluido) return false; 
+                const tInicio = t.fecha_hora;
+                const tBloques = Math.ceil(t.servicios.duracion / DURACION_BLOQUE);
+                const tFin = new Date(tInicio.getTime() + tBloques * DURACION_BLOQUE * 60 * 1000);
+                return inicio < tFin && fin > tInicio;
+            });
+            if (haySuperposicion) {
+                return { status: 409, mensaje: 'Ese horario ya está ocupado, por favor elegí otro' };
+            }
+
+            return { inicio };
+    }
+
+
+
 export class TurnoController {
     
+
     static async disponibilidad (req, res){
         try{
 
@@ -22,57 +80,16 @@ export class TurnoController {
             if (!servicio || !servicio.estado){
                 return res.status(404).json({mensaje:'El servicio no esta disponible'})
             }
-            //Armar la fecha del turno, en hora de Argentina
-            const inicio = new Date(`${fecha}T${hora}:00${ZONA_HORARIA}`);
-            if (Number.isNaN(inicio.getTime())){
-                return res.status(400).json({ mensaje: "La fecha u hora no es valida." });
-            }
-            //¿Es una fecha futura?
-            if(inicio <= new Date()){
-                return res.status(400).json({ mensaje: 'No se puede reservar un turno en una fecha u hora pasada' });
-            }
-            //¿Es martes a sábado?
-            const dia = new Date(`${fecha}T00:00:00Z`).getUTCDay();
-            if(!DIAS_ATENCION.includes(dia)){
-                return res.status(400).json({ mensaje: "Solo se puede reservar turnos de martes a sábado." });
-            }
-            //¿Empieza en un bloque de 30 minutos?
-            const [h, m] = hora.split(':').map(Number);
-            const minutosInicio = h * 60 + m;
-            if(minutosInicio % DURACION_BLOQUE !== 0){
-                return res.status(400).json({ mensaje: "Los turnos empiezan cada 30 minutos." });
-            }
-            //¿El servicio entra entero en una franja horaria?
-            const bloques = Math.ceil(servicio.duracion / DURACION_BLOQUE);
-            const minutosFin = minutosInicio + bloques * DURACION_BLOQUE;
-            
-            const entraEnFranja = FRANJAS_HORARIAS.some(franja =>
-                minutosInicio >= franja.inicio && minutosFin <= franja.fin
-            );
-            if (!entraEnFranja) {
-                return res.status(400).json({ mensaje: 'El servicio no entra en el horario de atención' });
-            }
-            //¿Se superpone con otro turno activo? 
-            const fin = new Date(inicio.getTime() + bloques * DURACION_BLOQUE * 60 * 1000);
-            const inicioDia = new Date(`${fecha}T00:00:00${ZONA_HORARIA}`);
-            const finDia = new Date(inicioDia.getTime() + 24 * 60 * 60 * 1000);
-            const turnosDelDia = await TurnoModel.listarActivosPorFecha(inicioDia, finDia);
+            // Validar fecha, hora, franja y superposicion
+            const resultado = await validarHorario(servicio, fecha, hora, null);
+                if (resultado.status) {
+                    return res.status(resultado.status).json({ mensaje: resultado.mensaje });
+                }
 
-            const haySuperposicion = turnosDelDia.some(t => {
-            const tInicio = t.fecha_hora;
-            const tBloques = Math.ceil(t.servicios.duracion / DURACION_BLOQUE);
-            const tFin = new Date(tInicio.getTime() + tBloques * DURACION_BLOQUE * 60 * 1000);
-            return inicio < tFin && fin > tInicio;
-            });
-
-            if (haySuperposicion) {
-                return res.status(409).json({ mensaje: 'Ese horario ya está ocupado, por favor elegí otro' });
-            }
-            //Guardar el turno (el estado queda 'pendiente' por defecto)
             const turno = await TurnoModel.crearTurno({
                 usuario_id: idUsuario,
                 servicio_id,
-                fecha_hora: inicio
+                fecha_hora: resultado.inicio
             });
 
             return res.status(201).json({ mensaje: 'Turno reservado con éxito', turno });
