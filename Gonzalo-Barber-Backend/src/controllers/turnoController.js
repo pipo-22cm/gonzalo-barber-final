@@ -2,7 +2,7 @@ import { TurnoModel } from '../models/turnoModel.js';
 import { ServicioModel } from '../models/servicioModel.js';
 import {DIAS_ATENCION, FRANJAS_HORARIAS, DURACION_BLOQUE, HORAS_LIMITE_CANCELAR, PUNTOS_POR_TURNO, ZONA_HORARIA} from '../config/negocio.js';
 
-async function validarHorario(servicio, fecha, hora, idTurnoExcluido) {
+    async function validarHorario(servicio, fecha, hora, idTurnoExcluido) {
             // Armar la fecha del turno, en hora de Argentina
             const inicio = new Date(`${fecha}T${hora}:00${ZONA_HORARIA}`);
             if (Number.isNaN(inicio.getTime())) {
@@ -55,20 +55,92 @@ async function validarHorario(servicio, fecha, hora, idTurnoExcluido) {
             }
 
             return { inicio };
+        }
+    
+   
+        // ¿El horario de inicio a fin choca con algún turno activo? (RF-2)
+// Saltea el turno idTurnoExcluido (el que se está modificando), si hay uno.
+function seSuperpone(inicio, fin, turnosDelDia, idTurnoExcluido) {
+    return turnosDelDia.some(t => {
+        if (t.id_turno === idTurnoExcluido) return false;
+        const tBloques = Math.ceil(t.servicios.duracion / DURACION_BLOQUE);
+        const tFin = new Date(t.fecha_hora.getTime() + tBloques * DURACION_BLOQUE * 60 * 1000);
+        return inicio < tFin && fin > t.fecha_hora;
+    });
     }
-
 
 
 export class TurnoController {
     
 
-    static async disponibilidad (req, res){
-        try{
+static async disponibilidad(req, res) {
+    try {
+        // 1. Leer y validar los datos del query string
+        const { fecha } = req.query;
+        const servicioId = Number(req.query.servicio_id);
 
-        }catch(error){
-
+        if (!fecha || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+            return res.status(400).json({ mensaje: 'La fecha debe tener el formato AAAA-MM-DD' });
         }
+        if (!Number.isInteger(servicioId)) {
+            return res.status(400).json({ mensaje: 'El servicio no es válido' });
+        }
+        const inicioDia = new Date(`${fecha}T00:00:00${ZONA_HORARIA}`);
+        if (Number.isNaN(inicioDia.getTime())) {
+            return res.status(400).json({ mensaje: 'La fecha no es válida' });
+        }
+
+        // 2. ¿El servicio existe y está activo?
+        const servicio = await ServicioModel.buscarPorIdServicio(servicioId);
+        if (!servicio || !servicio.estado) {
+            return res.status(404).json({ mensaje: 'El servicio no está disponible' });
+        }
+
+        // 3. ¿Es un día de atención? Si no, no hay horarios
+        const dia = new Date(`${fecha}T00:00:00Z`).getUTCDay();
+        if (!DIAS_ATENCION.includes(dia)) {
+            return res.status(200).json({ fecha, servicio_id: servicioId, horarios: [] });
+        }
+
+        // 4. ¿Cuánto ocupa el servicio?
+        const bloques = Math.ceil(servicio.duracion / DURACION_BLOQUE);
+        const duracionMs = bloques * DURACION_BLOQUE * 60 * 1000;
+
+        // 5. Los turnos activos del día, en UNA sola consulta
+        const finDia = new Date(inicioDia.getTime() + 24 * 60 * 60 * 1000);
+        const turnosDelDia = await TurnoModel.listarActivosPorFecha(inicioDia, finDia);
+
+        // 6. Recorrer todos los horarios posibles de cada franja
+        const ahora = new Date();
+        const horarios = [];
+
+        for (const franja of FRANJAS_HORARIAS) {
+            for (let minutos = franja.inicio; minutos + bloques * DURACION_BLOQUE <= franja.fin; minutos += DURACION_BLOQUE) {
+                // Pasar los minutos a "HH:MM"
+                const hh = String(Math.floor(minutos / 60)).padStart(2, '0');
+                const mm = String(minutos % 60).padStart(2, '0');
+                const hora = `${hh}:${mm}`;
+
+                const inicio = new Date(`${fecha}T${hora}:00${ZONA_HORARIA}`);
+                const fin = new Date(inicio.getTime() + duracionMs);
+
+                if (inicio <= ahora) continue;                                // ya pasó
+                if (seSuperpone(inicio, fin, turnosDelDia, null)) continue;   // está ocupado
+
+                horarios.push(hora);
+            }
+        }
+
+        // 7. Responder la lista
+        return res.status(200).json({ fecha, servicio_id: servicioId, horarios });
+
+    } catch (error) {
+        console.error('Error al consultar la disponibilidad:', error);
+        return res.status(500).json({
+            mensaje: 'Error al consultar la disponibilidad, por favor intente más tarde.'
+        });
     }
+}
 
     static async crearTurno (req, res){
         try{

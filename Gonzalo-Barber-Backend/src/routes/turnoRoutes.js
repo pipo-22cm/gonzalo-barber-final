@@ -11,6 +11,7 @@ const router = Router();
 
 router.get('/',authMiddlewares, esAdmin, TurnoController.listarPorFecha);
 router.get('/mis-turnos',authMiddlewares, TurnoController.misTurnos);
+router.get('/disponibilidad', TurnoController.disponibilidad);
 router.post('/',authMiddlewares,validarSchemas(crearTurnoSchema), TurnoController.crearTurno);
 router.patch('/:id/cancelar', authMiddlewares, TurnoController.cancelarMiTurno);
 router.patch('/:id/estado', authMiddlewares, esAdmin, validarSchemas(cambiarEstadoSchema), TurnoController.cambiarEstado);
