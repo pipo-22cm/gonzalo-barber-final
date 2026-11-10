@@ -10,3 +10,8 @@ export const capturadorDeError = (err,req,res,next)=>{
              })
        
     }
+
+export const rutaNoEncontrada = (req,res) =>{
+    return res.status(404).json({mensaje: 'La ruta solicitada no existe'})
+}
+
