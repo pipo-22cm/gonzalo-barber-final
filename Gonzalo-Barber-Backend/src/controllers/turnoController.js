@@ -1,6 +1,9 @@
 import { TurnoModel } from '../models/turnoModel.js';
 import { ServicioModel } from '../models/servicioModel.js';
+import { BloqueoModel } from '../models/bloqueoModel.js';
 import {DIAS_ATENCION, FRANJAS_HORARIAS, DURACION_BLOQUE, HORAS_LIMITE_CANCELAR, PUNTOS_POR_TURNO, ZONA_HORARIA} from '../config/negocio.js';
+import { seSuperpone } from '../utils/horarios.js'
+
 
     async function validarHorario(servicio, fecha, hora, idTurnoExcluido) {
             // Armar la fecha del turno, en hora de Argentina
@@ -39,18 +42,15 @@ import {DIAS_ATENCION, FRANJAS_HORARIAS, DURACION_BLOQUE, HORAS_LIMITE_CANCELAR,
 
             // ¿Se superpone con otro turno activo?
             const fin = new Date(inicio.getTime() + bloques * DURACION_BLOQUE * 60 * 1000);
+            const bloqueos = await BloqueoModel.listarPorRango(inicio, fin);
+                    if (bloqueos.length > 0) {
+                        return { status: 409, mensaje: 'La barbería no atiende en ese horario' };
+                    }
             const inicioDia = new Date(`${fecha}T00:00:00${ZONA_HORARIA}`);
             const finDia = new Date(inicioDia.getTime() + 24 * 60 * 60 * 1000);
             const turnosDelDia = await TurnoModel.listarActivosPorFecha(inicioDia, finDia);
 
-            const haySuperposicion = turnosDelDia.some(t => {
-                if (t.id_turno === idTurnoExcluido) return false; 
-                const tInicio = t.fecha_hora;
-                const tBloques = Math.ceil(t.servicios.duracion / DURACION_BLOQUE);
-                const tFin = new Date(tInicio.getTime() + tBloques * DURACION_BLOQUE * 60 * 1000);
-                return inicio < tFin && fin > tInicio;
-            });
-            if (haySuperposicion) {
+            if (seSuperpone(inicio, fin, turnosDelDia, idTurnoExcluido)) {
                 return { status: 409, mensaje: 'Ese horario ya está ocupado, por favor elegí otro' };
             }
 
@@ -60,15 +60,6 @@ import {DIAS_ATENCION, FRANJAS_HORARIAS, DURACION_BLOQUE, HORAS_LIMITE_CANCELAR,
    
         // ¿El horario de inicio a fin choca con algún turno activo? (RF-2)
 // Saltea el turno idTurnoExcluido (el que se está modificando), si hay uno.
-function seSuperpone(inicio, fin, turnosDelDia, idTurnoExcluido) {
-    return turnosDelDia.some(t => {
-        if (t.id_turno === idTurnoExcluido) return false;
-        const tBloques = Math.ceil(t.servicios.duracion / DURACION_BLOQUE);
-        const tFin = new Date(t.fecha_hora.getTime() + tBloques * DURACION_BLOQUE * 60 * 1000);
-        return inicio < tFin && fin > t.fecha_hora;
-    });
-    }
-
 
 export class TurnoController {
     
@@ -109,6 +100,7 @@ static async disponibilidad(req, res) {
         // 5. Los turnos activos del día, en UNA sola consulta
         const finDia = new Date(inicioDia.getTime() + 24 * 60 * 60 * 1000);
         const turnosDelDia = await TurnoModel.listarActivosPorFecha(inicioDia, finDia);
+        const bloqueosDelDia = await BloqueoModel.listarPorRango(inicioDia, finDia);
 
         // 6. Recorrer todos los horarios posibles de cada franja
         const ahora = new Date();
@@ -126,7 +118,10 @@ static async disponibilidad(req, res) {
 
                 if (inicio <= ahora) continue;                                // ya pasó
                 if (seSuperpone(inicio, fin, turnosDelDia, null)) continue;   // está ocupado
-
+                const estaBloqueado = bloqueosDelDia.some(b =>
+                    inicio < b.fecha_hora_fin && fin > b.fecha_hora_inicio
+                );
+                if (estaBloqueado) continue; 
                 horarios.push(hora);
             }
         }
