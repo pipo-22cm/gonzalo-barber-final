@@ -40,6 +40,7 @@ model productos {
   precio         Decimal          @db.Decimal(10, 2)
   stock          Int
   imagen_url     String?          @db.VarChar(255)
+  estado         Boolean          @default(true)
   created_at     DateTime         @default(now()) @db.Timestamp(0)
   detalle_ventas detalle_ventas[]
   categorias     categorias       @relation(fields: [categoria_id], references: [id_categoria], onUpdate: NoAction, map: "fk_productos_categoria")
