@@ -18,7 +18,7 @@ export const registroSchema = z.object({
     .max(72, 'La contraseña no puede superar los 72 caracteres'),
 
   telefono: z.string().trim()
-    .max(20, 'El teléfono no puede superar los 20 caracteres')
+    .regex(/^\d{8,15}$/, 'El teléfono solo puede tener números, entre 8 y 15 dígitos')
     .optional()
 });
 

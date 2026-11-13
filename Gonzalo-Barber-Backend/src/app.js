@@ -2,6 +2,7 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import { authRoutes }  from './routes/authRoutes.js'
+import { usuarioRoutes }  from './routes/usuarioRoutes.js'
 import { servicioRoutes }  from './routes/servicioRoutes.js'
 import { turnoRoutes }  from './routes/turnoRoutes.js'
 import { bloqueoRoutes }  from './routes/bloqueoRoutes.js'
@@ -20,6 +21,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use('/gonzaloBarber/auth', authRoutes)
+app.use('/gonzaloBarber/usuarios', usuarioRoutes)
 app.use('/gonzaloBarber/servicios', servicioRoutes)
 app.use('/gonzaloBarber/turnos', turnoRoutes)
 app.use('/gonzaloBarber/bloqueos', bloqueoRoutes)

@@ -41,14 +41,13 @@ export class ServicioController {
 
     static async crearServicio (req, res) {
        
-            const {nombre, descripcion, precio, duracion, estado} = req.body
+            const {nombre, descripcion, precio, duracion} = req.body
             
             const nuevoServicio = await ServicioModel.crearServicio({
                 nombre,
                 descripcion,
                 precio,
-                duracion,
-                estado
+                duracion
             })
 
             return res.status(201).json({
@@ -107,4 +106,27 @@ export class ServicioController {
                 servicio: bajaServicio
                 });
     }
+
+    static async reactivarServicio(req, res) {
+            const id = Number(req.params.id)
+            if (!Number.isInteger(id)) {
+                return res.status(400).json({ mensaje: 'El id no es un número válido' })
+            }
+        
+            const servicio = await ServicioModel.buscarPorIdServicio(id)
+            if (!servicio) {
+                return res.status(404).json({ mensaje: 'El servicio no existe' })
+            }
+        
+            if (servicio.estado) {
+                return res.status(409).json({ mensaje: 'El servicio ya está activo' })
+            }
+        
+            const servicioReactivado = await ServicioModel.reactivarServicio(id)
+            return res.status(200).json({
+                mensaje: 'Servicio reactivado con éxito',
+                servicio: servicioReactivado
+            })
+    }
+    
 }
