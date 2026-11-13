@@ -22,8 +22,7 @@ export class ServicioModel {
                 nombre: nuevoServicio.nombre,
                 descripcion: nuevoServicio.descripcion,
                 precio: nuevoServicio.precio,
-                duracion: nuevoServicio.duracion,
-                estado: nuevoServicio.estado
+                duracion: nuevoServicio.duracion
             }
         })
     }
@@ -39,6 +38,13 @@ export class ServicioModel {
         return await prisma.servicios.update({
             where: {id_servicio: id},
             data: { estado: false }
+        })
+    }
+
+    static async reactivarServicio(id){
+        return await prisma.servicios.update({
+            where: {id_servicio: id},
+            data: { estado: true }
         })
     }
 }
