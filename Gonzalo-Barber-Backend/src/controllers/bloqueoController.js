@@ -1,25 +1,19 @@
 import { BloqueoModel } from '../models/bloqueoModel.js';
 import { TurnoModel } from '../models/turnoModel.js';
-import { DIAS_ATENCION, FRANJAS_HORARIAS, HORAS_LIMITE_CANCELAR, PUNTOS_POR_TURNO, ZONA_HORARIA } from '../config/negocio.js';
+import { ZONA_HORARIA } from '../config/negocio.js';
 import { seSuperpone } from '../utils/horarios.js'
 
 
 export class BloqueoController {
 
     static async listarBloqueos (req,res){
-        try {
+        
         const bloqueos = await BloqueoModel.listarDesde(new Date());
         return res.status(200).json({ bloqueos });
-        }catch(error){
-        console.error('Error al listar el bloqueo:', error);
-            return res.status(500).json({
-            mensaje: 'Error al listar el bloqueo, por favor intente más tarde.'
-        });
-        }  
     }
 
     static async crearBloqueo (req,res){
-        try{
+       
         const { fecha, hora_inicio, hora_fin, motivo } = req.body
         const horaInicio = hora_inicio ?? '09:00'
         const horaFin = hora_fin ?? '21:00'
@@ -36,7 +30,7 @@ export class BloqueoController {
         }
 
         if (fin <= new Date()){
-            return res.status(400).json({mensaje: 'El bloqueo ya termino'})
+            return res.status(400).json({mensaje: 'El bloqueo ya terminó'})
         }
 
         const inicioDia = new Date(`${fecha}T00:00:00${ZONA_HORARIA}`);
@@ -54,20 +48,10 @@ export class BloqueoController {
         });
 
         return res.status(201).json({ mensaje: 'Bloqueo creado con éxito', bloqueo });
-
-        }catch(error){
-            console.error('Error al crear el bloqueo:', error);
-            return res.status(500).json({
-            mensaje: 'Error al crear el bloqueo, por favor intente más tarde.'
-        }); 
-        }
-
-
-
     }
 
     static async eliminarBloqueo (req,res){
-        try{
+    
         const id = Number(req.params.id)
         if(!Number.isInteger(id)){
             return res.status(400).json({ mensaje: 'El id no es un número válido' });
@@ -78,15 +62,8 @@ export class BloqueoController {
             return res.status(404).json({ mensaje: 'El bloqueo no existe' });
         } 
 
-        const bloqueEliminado = await BloqueoModel.eliminarBloqueo(id);
-        return res.status(200).json({ mensaje: 'Bloqueo eliminado con exito', bloqueEliminado});
-        }catch(error){
-        console.error('Error al eliminar el bloqueo:', error);
-            return res.status(500).json({
-            mensaje: 'Error al eliminar el bloqueo, por favor intente más tarde.'
-        });
-        }
-    
+        const bloqueoEliminado = await BloqueoModel.eliminarBloqueo(id);
+        return res.status(200).json({ mensaje: 'Bloqueo eliminado con exito', bloqueoEliminado});
     }
 
 }
