@@ -17,6 +17,7 @@ router.get('/:id',ServicioController.obtenerPorId );
 router.post('/', authMiddlewares, esAdmin, validarSchemas(crearServicioSchema), ServicioController.crearServicio);
 router.patch('/:id', authMiddlewares, esAdmin, validarSchemas(actualizarServicioSchema), ServicioController.actualizarServicio);
 router.patch('/:id/baja', authMiddlewares, esAdmin, ServicioController.bajaServicio);
+router.patch('/:id/reactivar', authMiddlewares, esAdmin, ServicioController.reactivarServicio);
 
 
 
