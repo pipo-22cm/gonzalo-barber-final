@@ -7,11 +7,10 @@ export class AuthController {
 
     static async createUsuario (req,res){
         
-        try {
             const { nombre, apellido, email, password, telefono } = req.body;
             const usuarioExistente = await UsuarioModel.buscarPorEmail(email);
                 if(usuarioExistente){
-                return res.status(400).json({mensaje: 'El correo electronico ya está registrado.'})
+                return res.status(409).json({mensaje: 'El correo electronico ya está registrado.'})
                 }
             const saltRounds = 10;
             const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -27,17 +26,10 @@ export class AuthController {
                 mensaje: 'Usuario registrado con éxito',
                 id: idUsuario
             })
-        }catch(error){
-            console.error('Error al registrar usuario:', error);
-            return res.status(500).json({ 
-                mensaje: 'Error al registrar usuario, por favor intente mas tarde.'
-             })
-        }
     }
 
     static async loginUsuario (req,res) {
     
-        try{
             const {email, password} = req.body;
             const usuario = await UsuarioModel.buscarPorEmail(email);
             if(!usuario){
@@ -71,29 +63,15 @@ export class AuthController {
                     rol: usuario.rol
                 }
             });
-        }catch(error){
-            console.error('Error al iniciar sesión:', error);
-            return res.status(500).json({ 
-                mensaje: 'Error al iniciar sesión, por favor intente mas tarde.'
-            });
-        }
     }
 
     static async logoutUsuario (req,res) {
-        try {
+        
             res.clearCookie('token');
 
             return res.json({
-                ok: true,
                 mensaje: 'Sesión cerrada correctamente'
             })
-
-        }catch(error){
-            console.error('Error al cerrar sesión:', error);
-            return res.status(500).json({
-                mensaje: 'Hubo un error al cerrar sesión'
-            });
-        }
     }
 
 }
