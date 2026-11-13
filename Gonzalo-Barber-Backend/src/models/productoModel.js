@@ -43,6 +43,13 @@ export class ProductoModel {
     })
     }
 
+    static async reactivarProducto(id) {
+    return await prisma.productos.update({
+        where: { id_producto: id },
+        data: { estado: true }
+    })
+}
+
     static async darDeBajaProducto(id) {
     return await prisma.productos.update({
         where: { id_producto: id },
