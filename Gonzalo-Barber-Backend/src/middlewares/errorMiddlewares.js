@@ -1,4 +1,5 @@
 export const capturadorDeError = (err,req,res,next)=>{
+        console.error(`Error en ${req.method} ${req.originalUrl}`)
         console.error('Error:', err);
          if (err.type === 'entity.parse.failed') {
         return res.status(400).json({
