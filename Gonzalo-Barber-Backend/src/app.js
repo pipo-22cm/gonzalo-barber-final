@@ -8,6 +8,7 @@ import { turnoRoutes }  from './routes/turnoRoutes.js'
 import { bloqueoRoutes }  from './routes/bloqueoRoutes.js'
 import { categoriaRoutes }  from './routes/categoriaRoutes.js'
 import { productoRoutes }  from './routes/productoRoutes.js'
+import { galeriaRoutes }  from './routes/galeriaRoutes.js'
 import { capturadorDeError, rutaNoEncontrada } from './middlewares/errorMiddlewares.js'
 
 
@@ -19,6 +20,7 @@ app.use(cors({
 }))
 app.use(express.json())
 app.use(cookieParser())
+app.use('/uploads', express.static('uploads'))
 
 app.use('/gonzaloBarber/auth', authRoutes)
 app.use('/gonzaloBarber/usuarios', usuarioRoutes)
@@ -27,6 +29,7 @@ app.use('/gonzaloBarber/turnos', turnoRoutes)
 app.use('/gonzaloBarber/bloqueos', bloqueoRoutes)
 app.use('/gonzaloBarber/categorias', categoriaRoutes)
 app.use('/gonzaloBarber/productos', productoRoutes)
+app.use('/gonzaloBarber/galeria', galeriaRoutes)
 app.use(rutaNoEncontrada)
 app.use(capturadorDeError)
 
