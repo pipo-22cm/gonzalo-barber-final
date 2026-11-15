@@ -10,7 +10,7 @@ const EXTENSIONES = {
 // 1. Dónde y con qué nombre se guarda
 const storage = multer.diskStorage({
     destination: 'uploads/galeria',     // la carpeta donde van las fotos de la galería
-    filename: (req, file, cb) => {
+    filename: (req, file, cb) => {      // Genear un unico nombre para evitar que nos imagenes con el mismo nombre se sobrescriban entre si.
         const nombre = `${Date.now()}-${Math.round(Math.random() * 1000)}`
         cb(null, nombre + EXTENSIONES[file.mimetype])
     }
