@@ -14,8 +14,9 @@ export const crearProductoSchema = z.object({
         .max(255, 'La descripción no puede superar los 255 caracteres')
         .optional(),
 
-    precio: z.number('El precio tiene que ser un número')
-        .positive('El precio tiene que ser mayor a 0'),
+    precio: z.number('El precio es obligatorio')
+        .positive('El precio tiene que ser mayor a 0')
+        .max(99999999.99, 'El precio no puede superar los $99.999.999,99'),
 
     stock: z.number('El stock es obligatorio')
         .int('El stock debe ser un número entero')
