@@ -9,6 +9,7 @@ import { bloqueoRoutes }  from './routes/bloqueoRoutes.js'
 import { categoriaRoutes }  from './routes/categoriaRoutes.js'
 import { productoRoutes }  from './routes/productoRoutes.js'
 import { galeriaRoutes }  from './routes/galeriaRoutes.js'
+import { ventaRoutes } from './routes/ventaRoutes.js'
 import { capturadorDeError, rutaNoEncontrada } from './middlewares/errorMiddlewares.js'
 
 
@@ -30,6 +31,7 @@ app.use('/gonzaloBarber/bloqueos', bloqueoRoutes)
 app.use('/gonzaloBarber/categorias', categoriaRoutes)
 app.use('/gonzaloBarber/productos', productoRoutes)
 app.use('/gonzaloBarber/galeria', galeriaRoutes)
+app.use('/gonzaloBarber/ventas', ventaRoutes)
 app.use(rutaNoEncontrada)
 app.use(capturadorDeError)
 

@@ -48,12 +48,19 @@ export class ProductoModel {
         where: { id_producto: id },
         data: { estado: true }
     })
-}
+    }
 
     static async darDeBajaProducto(id) {
     return await prisma.productos.update({
         where: { id_producto: id },
         data: { estado: false }
     })
-    }   
+    }
+    
+    static async productosPorIds(ids) {
+    return await prisma.productos.findMany({
+        where: { id_producto: { in: ids } }
+    })
+    }
+    
 }

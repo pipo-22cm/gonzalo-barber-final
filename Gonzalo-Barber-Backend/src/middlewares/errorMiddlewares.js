@@ -19,8 +19,8 @@ export const capturadorDeError = (err,req,res,next)=>{
             return res.status(400).json({ mensaje: 'No se pudo subir la imagen' })
         }
 
-        if (err.status === 400) {
-            return res.status(400).json({ mensaje: err.message })
+        if (err.status >= 400 && err.status < 500) {
+            return res.status(err.status).json({ mensaje: err.message })
         }
 
         return res.status(500).json({ 
