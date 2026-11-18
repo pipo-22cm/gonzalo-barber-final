@@ -1,6 +1,3 @@
-import { z } from 'zod';
-z.config(z.locales.es());
-
 import { z } from 'zod'
 z.config(z.locales.es())
 
