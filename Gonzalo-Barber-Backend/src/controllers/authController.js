@@ -10,7 +10,7 @@ export class AuthController {
             const { nombre, apellido, email, password, telefono } = req.body;
             const usuarioExistente = await UsuarioModel.buscarPorEmail(email);
                 if(usuarioExistente){
-                return res.status(409).json({mensaje: 'El correo electronico ya está registrado.'})
+                return res.status(409).json({mensaje: 'El correo electrónico ya está registrado'})
                 }
             const saltRounds = 10;
             const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -67,7 +67,11 @@ export class AuthController {
 
     static async logoutUsuario (req,res) {
         
-            res.clearCookie('token');
+            res.clearCookie('token', {
+                httpOnly: true,
+                secure: NODE_ENV === 'production',
+                sameSite: 'strict'
+            });
 
             return res.json({
                 mensaje: 'Sesión cerrada correctamente'
