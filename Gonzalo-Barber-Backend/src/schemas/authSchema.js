@@ -30,3 +30,11 @@ export const loginSchema = z.object({
     password: z.string('La contraseña es obligatoria')
         .min(1, 'La contraseña es obligatoria')
 })
+
+export const olvidePasswordSchema = loginSchema.pick({ email: true })
+
+export const restablecerPasswordSchema = registroSchema
+  .pick({ password: true })
+  .extend({
+    token: z.string('El enlace no es válido').regex(/^[a-f0-9]{64}$/, 'El enlace no es válido')
+  })

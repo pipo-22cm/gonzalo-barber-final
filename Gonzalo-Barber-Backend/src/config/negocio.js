@@ -14,3 +14,5 @@ export const PUNTOS_POR_TURNO = 10;
 export const ZONA_HORARIA = '-03:00';
 
 export const STOCK_MINIMO = 3;
+
+export const MINUTOS_VENCE_RESET = 30;

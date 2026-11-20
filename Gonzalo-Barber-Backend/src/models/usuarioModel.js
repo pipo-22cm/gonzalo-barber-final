@@ -49,5 +49,28 @@ export class UsuarioModel {
         select: camposPerfil
     })
     }
+
+    static async guardarTokenReset (id, tokenHash, expira) {
+    return prisma.usuarios.update({
+      where: { id_usuario: id },
+      data: { reset_token_hash: tokenHash, reset_token_expira: expira },
+      select: { id_usuario: true }
+    })
+    }
+
+    static async buscarPorTokenReset (tokenHash) {
+    return prisma.usuarios.findUnique({
+        where: { reset_token_hash: tokenHash },
+        select: { id_usuario: true, reset_token_expira: true }
+    })
+    }
+
+    static async cambiarPassword (id, passwordHash) {
+    return prisma.usuarios.update({
+        where: { id_usuario: id },
+        data: { password: passwordHash, reset_token_hash: null, reset_token_expira: null },
+        select: { id_usuario: true }
+    })
+    }
     
 }
