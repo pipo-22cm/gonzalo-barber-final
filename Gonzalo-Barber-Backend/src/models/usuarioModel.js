@@ -72,5 +72,21 @@ export class UsuarioModel {
         select: { id_usuario: true }
     })
     }
+
+    static async buscarClientes (texto) {
+    return prisma.usuarios.findMany({
+        where: {
+          rol: 'cliente',
+          OR: [
+            { nombre: { contains: texto } },
+            { apellido: { contains: texto } },
+            { email: { contains: texto } }
+          ]
+        },
+        select: { id_usuario: true, nombre: true, apellido: true, email: true, telefono: true },
+        orderBy: [{ apellido: 'asc' }, { nombre: 'asc' }],
+        take: 10
+  })
+}
     
 }

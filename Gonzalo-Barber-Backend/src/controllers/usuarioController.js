@@ -23,4 +23,15 @@ export class UsuarioController {
             usuario: usuarioActualizado
         })
     }
+
+    static async buscarClientes (req, res) {
+         const busqueda = req.query.busqueda?.trim()
+         if (!busqueda || busqueda.length < 2 || busqueda.length > 100) {
+           return res.status(400).json({ mensaje: 'Escribí entre 2 y 100 caracteres para buscar' })
+         }
+     
+         const usuarios = await UsuarioModel.buscarClientes(busqueda)
+         res.json({ usuarios })
+    }
+    
 }
