@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext.jsx';
+
 
 const API_URL = 'http://localhost:3000/gonzaloBarber';
 
-export const Login = ({ onLoginSuccess, onVolver }) => {
+export const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [cargando, setCargando] = useState(false);
+    const { setUsuario } = useContext(AuthContext);
+    const navigate = useNavigate();
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,7 +35,8 @@ export const Login = ({ onLoginSuccess, onVolver }) => {
                 throw new Error(data.mensaje || 'Error al iniciar sesión');
             }
 
-            onLoginSuccess(data.usuario);
+            setUsuario(data.usuario);
+            navigate(data.usuario.rol === 'admin' ? '/admin' : '/perfil');
 
         } catch (err) {
             console.error('Error de login:', err);
@@ -44,7 +51,7 @@ export const Login = ({ onLoginSuccess, onVolver }) => {
             <div className="card shadow-lg p-4 bg-dark text-white" style={{ width: '100%', maxWidth: '420px', borderRadius: '12px' }}>
                 <div className="text-center mb-4">
                     <h2 className="fw-bold text-warning">Gonzalo Barber</h2>
-                    <p className="text-muted">Panel de Administración</p>
+                    <p className="text-muted">Iniciá sesión</p>
                 </div>
 
                 {error && (
@@ -59,7 +66,7 @@ export const Login = ({ onLoginSuccess, onVolver }) => {
                         <input 
                             type="email" 
                             className="form-control bg-secondary text-white border-0" 
-                            placeholder="admin@barber.com"
+                            placeholder="tu@email.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -87,15 +94,10 @@ export const Login = ({ onLoginSuccess, onVolver }) => {
                             {cargando ? 'Verificando...' : 'Ingresar'}
                         </button>
                         
-                        {onVolver && (
-                            <button 
-                                type="button" 
-                                className="btn btn-outline-light py-2" 
-                                onClick={onVolver}
-                            >
-                                Volver al inicio
-                            </button>
-                        )}
+                        <Link to="/" className="btn btn-outline-light py-2">
+                            Volver al inicio
+                        </Link>
+
                     </div>
                 </form>
             </div>
