@@ -4,6 +4,9 @@ import { AuthContext } from './context/AuthContext.jsx';
 import { RutaProtegida } from './componentes/RutaProtegida.jsx';
 import { Inicio } from './paginas/Inicio.jsx';
 import { Login } from './paginas/Login.jsx';
+import { Registro } from './paginas/Registro.jsx';
+import { OlvidePassword } from './paginas/OlvidePassword.jsx';
+import { RestablecerPassword } from './paginas/RestablecerPassword.jsx';
 import { PanelAdmin } from './paginas/PanelAdmin.jsx';
 import { Perfil } from './paginas/Perfil.jsx';
 import { NoEncontrada } from './paginas/NoEncontrada.jsx';
@@ -22,6 +25,9 @@ function App() {
 
       <Route path='/' element={<Inicio/>}/>
       <Route path='/login' element={<Login/>}/>
+      <Route path="/registro" element={<Registro />} />
+      <Route path="/olvide-password" element={<OlvidePassword />} />
+      <Route path="/restablecer-password" element={<RestablecerPassword />} />
       <Route path='/admin' element={
         <RutaProtegida rol="admin">
           <PanelAdmin />
