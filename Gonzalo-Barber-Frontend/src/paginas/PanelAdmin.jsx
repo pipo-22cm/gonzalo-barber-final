@@ -1,19 +1,8 @@
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext.jsx';
 
 export const PanelAdmin = () => {
-  const { usuario, setUsuario } = useContext(AuthContext);
-  const navigate = useNavigate();
-
-  const cerrarSesion = async () => {
-    await fetch('http://localhost:3000/gonzaloBarber/auth/logout', {
-      method: 'POST',
-      credentials: 'include'
-    });
-    setUsuario(null);
-    navigate('/');
-  };
+  const { usuario, cerrarSesion } = useContext(AuthContext);
 
   return (
     <div className="container mt-5 text-white">

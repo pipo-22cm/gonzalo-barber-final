@@ -1,0 +1,55 @@
+.inicio {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--fondo-oscuro);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('../assets/fondo-inicio.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  
+}
+
+.inicio-hero {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.inicio-logo {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.inicio-logo:hover {
+  transform: scale(1.05);
+}
+
+.inicio-cartel {
+  background-color: rgba(0, 0, 0, 0.55);
+  border-radius: 10px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.inicio-cartel h1 {
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.inicio-cartel p {
+  font-size: 1.25rem;
+  color: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+  .inicio {
+    background-attachment: scroll;
+  }
+}

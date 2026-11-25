@@ -1,10 +1,25 @@
 import { createContext, useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+
 
 export const AuthContext = createContext();
 
 export function AuthProvider ({ children }) {
+  
   const [usuario, setUsuario] = useState(null)
   const [cargando, setCargando] = useState(true)
+  const navigate = useNavigate()
+
+   const cerrarSesion = async () => {
+    await fetch('http://localhost:3000/gonzaloBarber/auth/logout', {
+      method: 'POST',
+      credentials: 'include'
+    });
+    setUsuario(null);
+    navigate('/');
+  };
+
+
 
   useEffect(() => {
     const verificarSesion = async () => {
@@ -28,7 +43,7 @@ export function AuthProvider ({ children }) {
   }, [])
 
    return (
-    <AuthContext.Provider value={{ usuario, setUsuario, cargando }}>
+    <AuthContext.Provider value={{ usuario, setUsuario, cargando, cerrarSesion }}>
       {children}
     </AuthContext.Provider>
   )
