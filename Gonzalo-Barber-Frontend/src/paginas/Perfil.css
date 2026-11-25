@@ -1,0 +1,15 @@
+.perfil-puntos {
+  border: 2px solid var(--rojo-marca);
+  border-radius: 10px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.perfil-puntos-numero {
+  font-size: 3rem;
+  font-weight: bold;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}

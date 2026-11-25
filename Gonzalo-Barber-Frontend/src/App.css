@@ -54,3 +54,27 @@ body {
 .pie a:hover {
   color: var(--rojo-marca);
 }
+
+.pagina {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--fondo-oscuro);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('./assets/fondo-inicio.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #fff;
+}
+
+.tarjeta {
+  background-color: rgba(0, 0, 0, 0.55);
+  border-radius: 10px;
+  padding: 2.5rem 2rem;
+}
+
+@media (max-width: 768px) {
+  .pagina {
+    background-attachment: scroll;
+  }
+}

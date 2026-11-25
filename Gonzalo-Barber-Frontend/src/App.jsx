@@ -5,6 +5,7 @@ import { RutaProtegida } from './componentes/RutaProtegida.jsx';
 import { Inicio } from './paginas/Inicio.jsx';
 import { Login } from './paginas/Login.jsx';
 import { PanelAdmin } from './paginas/PanelAdmin.jsx';
+import { Perfil } from './paginas/Perfil.jsx';
 import { NoEncontrada } from './paginas/NoEncontrada.jsx';
 import './App.css';
 
@@ -26,6 +27,11 @@ function App() {
           <PanelAdmin />
         </RutaProtegida>
       }/>
+      <Route path="/perfil" element={
+        <RutaProtegida>
+          <Perfil />
+        </RutaProtegida>
+      } />
       <Route path='*' element={<NoEncontrada/>}/>
     </Routes>
   )

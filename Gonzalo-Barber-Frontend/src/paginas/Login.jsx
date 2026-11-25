@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext.jsx';
+import logo from '../assets/logo.jpg';
 
 
 const API_URL = 'http://localhost:3000/gonzaloBarber';
@@ -47,11 +48,11 @@ export const Login = () => {
     };
 
     return (
-        <div className="container d-flex justify-content-center align-items-center min-vh-100">
-            <div className="card shadow-lg p-4 bg-dark text-white" style={{ width: '100%', maxWidth: '420px', borderRadius: '12px' }}>
+            <div className="pagina justify-content-center align-items-center p-3">
+                <div className="tarjeta w-100" style={{ maxWidth: '420px' }}>
                 <div className="text-center mb-4">
-                    <h2 className="fw-bold text-warning">Gonzalo Barber</h2>
-                    <p className="text-muted">Iniciá sesión</p>
+                     <img src={logo} alt="Logo de Gonzalo Barbershop" className="rounded-circle mb-3" width="110" height="110" />
+                    <h1 className="h4">Iniciá sesión</h1>
                 </div>
 
                 {error && (
@@ -65,7 +66,7 @@ export const Login = () => {
                         <label className="form-label">Correo electrónico</label>
                         <input 
                             type="email" 
-                            className="form-control bg-secondary text-white border-0" 
+                            className="form-control"
                             placeholder="tu@email.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -77,7 +78,7 @@ export const Login = () => {
                         <label className="form-label">Contraseña</label>
                         <input 
                             type="password" 
-                            className="form-control bg-secondary text-white border-0" 
+                            className="form-control"
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -88,7 +89,7 @@ export const Login = () => {
                     <div className="d-grid gap-2">
                         <button 
                             type="submit" 
-                            className="btn btn-warning fw-bold text-dark py-2"
+                            className="btn btn-marca py-2"
                             disabled={cargando}
                         >
                             {cargando ? 'Verificando...' : 'Ingresar'}
@@ -97,7 +98,14 @@ export const Login = () => {
                         <Link to="/" className="btn btn-outline-light py-2">
                             Volver al inicio
                         </Link>
-
+                        <div className="text-center mt-2">
+                            <Link to="/olvide-password" className="link-light d-block mb-1">
+                                ¿Olvidaste tu contraseña?
+                            </Link>
+                            <Link to="/registro" className="link-light">
+                                ¿No tenés cuenta? Registrate
+                            </Link>
+                        </div>
                     </div>
                 </form>
             </div>
