@@ -1,19 +1,51 @@
 import { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext.jsx';
+import { NavLink, Outlet } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import logo from '../assets/logo.jpg';
+
+// Secciones del menú (se van sumando a medida que las hacemos)
+const secciones = [
+  { ruta: '/admin', texto: 'Inicio', end: true },
+  { ruta: '/admin/agenda', texto: 'Agenda' },
+];
 
 export const PanelAdmin = () => {
   const { usuario, cerrarSesion } = useContext(AuthContext);
 
   return (
-    <div className="container mt-5 text-white">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Panel de Administración</h1>
-        <button className="btn btn-danger" onClick={cerrarSesion}>
-          Cerrar Sesión
-        </button>
-      </div>
-      <hr className="bg-light" />
-      <p>Bienvenido, {usuario.nombre} a Gonzalo Barber.</p>
+    <div className="pagina-admin">
+      <header className="border-bottom border-secondary">
+        <div className="container-fluid py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div className="d-flex align-items-center gap-2">
+            <img src={logo} alt="Logo Gonzalo Barbershop" className="rounded-circle" width="40" height="40" />
+            <span className="fw-bold">Panel de administración</span>
+          </div>
+
+          <div className="d-flex align-items-center gap-3">
+            <span className="small">{usuario.nombre}</span>
+            <button type="button" className="btn btn-outline-light btn-sm" onClick={cerrarSesion}>
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+
+        <nav className="admin-menu container-fluid">
+          <ul className="nav">
+            {secciones.map((s) => (
+              <li className="nav-item" key={s.ruta}>
+                <NavLink to={s.ruta} end={s.end} className="nav-link">
+                  {s.texto}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </header>
+
+      <main className="flex-grow-1 container-fluid py-4">
+        {/* Acá React Router dibuja la sección según la URL */}
+        <Outlet />
+      </main>
     </div>
   );
 };

@@ -10,6 +10,8 @@ import { RestablecerPassword } from './paginas/RestablecerPassword.jsx';
 import { Reservar } from './paginas/Reservar.jsx';
 import { PanelAdmin } from './paginas/PanelAdmin.jsx';
 import { Perfil } from './paginas/Perfil.jsx';
+import { AdminInicio } from './paginas/admin/AdminInicio';
+import { AdminAgenda } from './paginas/admin/AdminAgenda';
 import { NoEncontrada } from './paginas/NoEncontrada.jsx';
 import './App.css';
 
@@ -29,11 +31,10 @@ function App() {
       <Route path="/registro" element={<Registro />} />
       <Route path="/olvide-password" element={<OlvidePassword />} />
       <Route path="/restablecer-password" element={<RestablecerPassword />} />
-      <Route path='/admin' element={
-        <RutaProtegida rol="admin">
-          <PanelAdmin />
-        </RutaProtegida>
-      }/>
+      <Route path='/admin' element={<RutaProtegida rol="admin"><PanelAdmin /></RutaProtegida>}>
+        <Route index element={<AdminInicio />} />
+        <Route path="agenda" element={<AdminAgenda />} />
+      </Route>
       <Route path="/perfil" element={
         <RutaProtegida>
           <Perfil />

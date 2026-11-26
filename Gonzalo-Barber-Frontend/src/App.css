@@ -73,6 +73,35 @@ body {
   padding: 2.5rem 2rem;
 }
 
+/*Panel Admin*/
+.pagina-admin {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--fondo-oscuro);
+  color: #fff;
+}
+
+/* Menu del panel */
+.admin-menu .nav-link {
+  color: #fff;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+}
+.admin-menu .nav-link:hover {
+  color: var(--rojo-marca);
+}
+.admin-menu .nav-link.active {
+  border-bottom-color: var(--rojo-marca);
+  font-weight: 600;
+}
+
+.panel {
+  background-color: #262626;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
 @media (max-width: 768px) {
   .pagina {
     background-attachment: scroll;
