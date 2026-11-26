@@ -7,6 +7,7 @@ import { Login } from './paginas/Login.jsx';
 import { Registro } from './paginas/Registro.jsx';
 import { OlvidePassword } from './paginas/OlvidePassword.jsx';
 import { RestablecerPassword } from './paginas/RestablecerPassword.jsx';
+import { Reservar } from './paginas/Reservar.jsx';
 import { PanelAdmin } from './paginas/PanelAdmin.jsx';
 import { Perfil } from './paginas/Perfil.jsx';
 import { NoEncontrada } from './paginas/NoEncontrada.jsx';
@@ -38,6 +39,7 @@ function App() {
           <Perfil />
         </RutaProtegida>
       } />
+      <Route path="/reservar" element={<Reservar />} />
       <Route path='*' element={<NoEncontrada/>}/>
     </Routes>
   )
