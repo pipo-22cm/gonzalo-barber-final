@@ -136,7 +136,7 @@ export const AdminAgenda = () => {
                           )}
                           <button
                             type="button"
-                            className="btn btn-marca btn-sm"
+                            className="btn btn-success btn-sm"
                             disabled={ocupado}
                             onClick={() =>
                               accion(
