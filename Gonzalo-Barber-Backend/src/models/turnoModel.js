@@ -3,7 +3,6 @@ import prisma  from '../config/db.js';
 export class TurnoModel {
 
     static async buscarPorIdTurno(id) {
-        //Un turno, con su servicio
         return await prisma.turnos.findUnique ({
             where: {id_turno: id},
             include: {servicios: true}
@@ -11,7 +10,6 @@ export class TurnoModel {
     }
 
     static async listarPorUsuario(usuarioId) {
-        //Los turnos de un cliente, con su servicio
         return await prisma.turnos.findMany ({
             where: {usuario_id: usuarioId },
             include: {servicios: true},
@@ -20,8 +18,6 @@ export class TurnoModel {
     }
 
     static async listarPorFecha(inicio, fin) {
-        //Todos los turnos de un día, con servicio y cliente
-        //Panel del admin (RF-4)
         return await prisma.turnos.findMany ({
             where: { fecha_hora:{ gte: inicio, lt: fin } },
             orderBy: {fecha_hora: 'asc'},
@@ -34,7 +30,6 @@ export class TurnoModel {
     }
 
     static async listarActivosPorFecha(inicio, fin) {
-        //Solo los pendientes y confirmados de un día, con la duración del servicio
         return await prisma.turnos.findMany({
             where:{
                 fecha_hora:{gte: inicio, lt:fin},
@@ -47,7 +42,6 @@ export class TurnoModel {
     }
 
     static async crearTurno(nuevoTurno) {
-        //Inserta un turno nuevo
         return await prisma.turnos.create({
             data:{
                 usuario_id: nuevoTurno.usuario_id,
@@ -58,7 +52,6 @@ export class TurnoModel {
     }
 
     static async actualizarTurno(id,datos) {
-        //Cambia fecha, hora o servicio
         return await prisma.turnos.update({
             where: {id_turno: id},
             data: datos
@@ -66,8 +59,6 @@ export class TurnoModel {
     }
 
     static async cambiarEstadoTurno(id, estado) {
-        //Cambia el estado
-        //Cancelar o confirmar
         return await prisma.turnos.update({
             where: {id_turno: id},
             data: {estado: estado}
@@ -75,7 +66,6 @@ export class TurnoModel {
     }
 
     static async completarTurno(id, usuarioId, puntos)	{
-        //Estado a completado + 10 puntos (transacción)
         return await prisma.$transaction([
             prisma.turnos.update({
                 where: {id_turno: id},
@@ -89,4 +79,19 @@ export class TurnoModel {
         
     }
     
+    static async listarSinCompletar() {
+      return prisma.turnos.findMany({
+        where: {
+          estado: { in: ['pendiente', 'confirmado'] },
+          fecha_hora: { lt: new Date() },
+        },
+        include: {
+          servicios: true,
+          usuarios: {
+            select: { id_usuario: true, nombre: true, apellido: true, telefono: true }, // nunca la contraseña
+          },
+        },
+        orderBy: { fecha_hora: 'asc' }, 
+      });
+    }
 }
