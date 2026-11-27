@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import logo from '../assets/logo.jpg';
 
-// Secciones del menú (se van sumando a medida que las hacemos)
+
 const secciones = [
   { ruta: '/admin', texto: 'Inicio', end: true },
   { ruta: '/admin/agenda', texto: 'Agenda' },
