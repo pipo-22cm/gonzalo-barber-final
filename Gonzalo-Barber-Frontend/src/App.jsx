@@ -12,6 +12,7 @@ import { PanelAdmin } from './paginas/PanelAdmin.jsx';
 import { Perfil } from './paginas/Perfil.jsx';
 import { AdminInicio } from './paginas/admin/AdminInicio';
 import { AdminAgenda } from './paginas/admin/AdminAgenda';
+import { AdminBloqueos } from './paginas/admin/AdminBloqueos';
 import { NoEncontrada } from './paginas/NoEncontrada.jsx';
 import './App.css';
 
@@ -32,8 +33,9 @@ function App() {
       <Route path="/olvide-password" element={<OlvidePassword />} />
       <Route path="/restablecer-password" element={<RestablecerPassword />} />
       <Route path='/admin' element={<RutaProtegida rol="admin"><PanelAdmin /></RutaProtegida>}>
-        <Route index element={<AdminInicio />} />
-        <Route path="agenda" element={<AdminAgenda />} />
+        <Route index element={<AdminInicio />}/>
+        <Route path="agenda" element={<AdminAgenda />}/>
+        <Route path="bloqueos" element={<AdminBloqueos />}/>
       </Route>
       <Route path="/perfil" element={
         <RutaProtegida>

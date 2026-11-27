@@ -7,6 +7,7 @@ import logo from '../assets/logo.jpg';
 const secciones = [
   { ruta: '/admin', texto: 'Inicio', end: true },
   { ruta: '/admin/agenda', texto: 'Agenda' },
+  { ruta: '/admin/bloqueos', texto: 'Bloqueos' },
 ];
 
 export const PanelAdmin = () => {
@@ -43,8 +44,9 @@ export const PanelAdmin = () => {
       </header>
 
       <main className="flex-grow-1 container-fluid py-4">
-        {/* Acá React Router dibuja la sección según la URL */}
+        
         <Outlet />
+        
       </main>
     </div>
   );
