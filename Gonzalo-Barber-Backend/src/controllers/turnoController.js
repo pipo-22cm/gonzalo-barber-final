@@ -286,4 +286,9 @@ static async disponibilidad(req, res) {
     }
 
     
+    static async turnosSinCompletar(req, res) {
+        const turnos = await TurnoModel.listarSinCompletar();
+        res.json({ turnos });
+    }
+    
 }
