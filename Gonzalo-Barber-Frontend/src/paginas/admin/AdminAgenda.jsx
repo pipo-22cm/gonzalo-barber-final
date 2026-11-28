@@ -15,7 +15,11 @@ export const AdminAgenda = () => {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [aviso, setAviso] = useState('');
-  const [procesando, setProcesando] = useState(null); 
+  const [procesando, setProcesando] = useState(null);
+  const [reagendar, setReagendar] = useState(null);
+  const [servicios, setServicios] = useState([]);
+  const [horariosLibres, setHorariosLibres] = useState([]);
+  const [errorReagendar, setErrorReagendar] = useState('');
   const [recargar, setRecargar] = useState(0);
 
   useEffect(() => {
@@ -38,6 +42,34 @@ export const AdminAgenda = () => {
     cargar();
   }, [fecha, recargar]);
 
+
+useEffect(() => {
+  const cargarServicios = async () => {
+    try {
+      const data = await pedir('/servicios');
+      setServicios(data.servicios);
+    } catch (err) {
+      setErrorReagendar(err.message);
+    }
+  };
+  cargarServicios();
+}, []);
+
+
+useEffect(() => {
+  if (!reagendar) return;
+  const buscarHorarios = async () => {
+    try {
+      const data = await pedir(
+        `/turnos/disponibilidad?fecha=${reagendar.fecha}&servicio_id=${reagendar.servicio_id}`
+      );
+      setHorariosLibres(data.horarios);
+    } catch (err) {
+      setErrorReagendar(err.message);
+    }
+  };
+  buscarHorarios();
+}, [reagendar?.fecha, reagendar?.servicio_id]);
   
   const cambiarDia = (nuevaFecha) => {
     setError('');
@@ -63,7 +95,44 @@ export const AdminAgenda = () => {
     }
   };
 
+  const abrirReagendar = (t) => {
+  setErrorReagendar('');
+  setReagendar({
+    id: t.id_turno,              
+    cliente: `${t.usuarios?.nombre} ${t.usuarios?.apellido}`,
+    fecha,                        
+    servicio_id: t.servicio_id,
+    hora: '',
+  });
+};
+
+const cambiarReagendar = (e) => {
+  setReagendar({ ...reagendar, [e.target.name]: e.target.value, hora: '' });
+};
+
+const guardarReagendar = async () => {
+  setErrorReagendar('');
+  try {
+    const data = await pedir(`/turnos/${reagendar.id}`, {
+      metodo: 'PATCH',
+      cuerpo: {
+        fecha: reagendar.fecha,
+        hora: reagendar.hora,
+        servicio_id: Number(reagendar.servicio_id),
+      },
+    });
+    setAviso(data.mensaje);       
+    setFecha(reagendar.fecha);   
+    setReagendar(null);
+    setRecargar((r) => r + 1);
+  } catch (err) {
+    setErrorReagendar(err.message);
+    setReagendar({ ...reagendar, hora: '' });
+  }
+};
+
   return (
+    
     <div className="panel">
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <h1 className="h4 mb-0">
@@ -91,7 +160,56 @@ export const AdminAgenda = () => {
 
       {error && <div className="alert alert-danger">{error}</div>}
       {aviso && <div className="alert alert-success">{aviso}</div>}
+      {reagendar && (
+          <div className="panel border border-warning mb-4">
+            <h5 className="mb-3">Reagendar turno de {reagendar.cliente}</h5>
 
+            {errorReagendar && <div className="alert alert-danger">{errorReagendar}</div>}
+
+            <div className="row g-3 mb-3">
+              <div className="col-12 col-md-6">
+                <label htmlFor="re-fecha" className="form-label">Día</label>
+                <input id="re-fecha" type="date" name="fecha" className="form-control"
+                  min={fechaHoy()} value={reagendar.fecha} onChange={cambiarReagendar} />
+              </div>
+              <div className="col-12 col-md-6">
+                <label htmlFor="re-servicio" className="form-label">Servicio</label>
+                <select id="re-servicio" name="servicio_id" className="form-select"
+                  value={reagendar.servicio_id} onChange={cambiarReagendar}>
+                  {servicios.map((s) => (
+                    <option key={s.id_servicio} value={s.id_servicio}>
+                      {s.nombre} ({s.duracion} min)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+                
+            <p className="mb-2">Horarios libres:</p>
+            {horariosLibres.length === 0 ? (
+              <p className="text-white-50">No hay horarios libres ese día.</p>
+            ) : (
+              <div className="d-flex flex-wrap gap-2 mb-3">
+                {horariosLibres.map((h) => (
+                  <button key={h} type="button"
+                    className={`btn btn-sm ${reagendar.hora === h ? 'btn-marca' : 'btn-outline-light'}`}
+                    onClick={() => setReagendar({ ...reagendar, hora: h })}>
+                    {h}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="d-flex gap-2">
+              <button className="btn btn-marca" disabled={!reagendar.hora} onClick={guardarReagendar}>
+                Guardar
+              </button>
+              <button className="btn btn-outline-light" onClick={() => setReagendar(null)}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
       {cargando ? (
         <p className="mb-0">Cargando turnos...</p>
       ) : turnos.length === 0 ? (
@@ -158,6 +276,9 @@ export const AdminAgenda = () => {
                             }
                           >
                             Cancelar
+                          </button>
+                          <button className="btn btn-outline-light btn-sm" onClick={() => abrirReagendar(t)}>
+                            Reagendar
                           </button>
                         </div>
                       )}
